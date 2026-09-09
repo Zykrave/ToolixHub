@@ -42,7 +42,13 @@ import androidx.compose.material.icons.filled.Transform
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.zykrave.toolixhub.ui.theme.ToolixAmber
+import com.zykrave.toolixhub.ui.theme.ToolixCyan
+import com.zykrave.toolixhub.ui.theme.ToolixEmerald
+import com.zykrave.toolixhub.ui.theme.ToolixPurple
+import com.zykrave.toolixhub.ui.theme.ToolixRose
 
 enum class ToolCategory(val title: String, val description: String) {
     CALCULATORS("Calculators & Converters", "Math, dates, units, and rates"),
@@ -54,6 +60,18 @@ enum class ToolCategory(val title: String, val description: String) {
     MEASUREMENT("Measurement & Sensors", "Compass, level, sound, and ruler"),
     TIMERS("Timers & Focus", "Stopwatch, countdown, and intervals"),
     QR_UTILITY("QR & Utility Tools", "QR codes, torch, and comparator")
+}
+
+fun ToolCategory.accentColor(): Color = when (this) {
+    ToolCategory.CALCULATORS -> ToolixCyan
+    ToolCategory.RANDOM -> ToolixCyan
+    ToolCategory.FINANCE -> ToolixAmber
+    ToolCategory.TIMERS -> ToolixAmber
+    ToolCategory.TEXT -> ToolixPurple
+    ToolCategory.IMAGE -> ToolixRose
+    ToolCategory.QR_UTILITY -> ToolixRose
+    ToolCategory.MEASUREMENT -> ToolixEmerald
+    ToolCategory.COLOR -> ToolixCyan // placeholder, replaced with gradient chip in a later step
 }
 
 data class ToolItem(
