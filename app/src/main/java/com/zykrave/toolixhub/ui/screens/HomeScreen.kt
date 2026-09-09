@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -60,6 +61,8 @@ import com.zykrave.toolixhub.ui.components.EmptyStateView
 import com.zykrave.toolixhub.ui.components.ToolixCard
 import com.zykrave.toolixhub.ui.components.ToolixIconChip
 import com.zykrave.toolixhub.ui.theme.ToolixAmber
+import com.zykrave.toolixhub.ui.theme.ToolixEmerald
+import com.zykrave.toolixhub.ui.theme.ToolixPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,25 +108,36 @@ fun HomeScreen(
                                     fontWeight = FontWeight.Bold,
                                     letterSpacing = 1.sp
                                 ),
-                                color = MaterialTheme.colorScheme.primary
+                                color = ToolixPurple
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Surface(
                                 shape = RoundedCornerShape(4.dp),
                                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
                             ) {
-                                Text(
-                                    text = "OFFLINE",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(6.dp)
+                                            .clip(CircleShape)
+                                            .background(ToolixEmerald)
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = "OFFLINE",
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                         Text(
                             text = "Everyday Utility Swiss Knife",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.copy(letterSpacing = 0.4.sp),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
