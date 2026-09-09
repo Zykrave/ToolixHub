@@ -60,12 +60,13 @@ fun StandardCalculatorScreen(
     var previousResult by remember { mutableStateOf("") }
     var showHistory by remember { mutableStateOf(false) }
     var isScientificExpanded by remember { mutableStateOf(false) }
+    var isDegrees by remember { mutableStateOf(true) }
     val history = remember { mutableStateListOf<Pair<String, String>>() }
 
     fun evaluateExpression(expr: String): String {
         return try {
             val sanitized = expr.replace("×", "*").replace("÷", "/").replace("π", "pi")
-            val result = simpleEval(sanitized, isDegrees = true)
+            val result = simpleEval(sanitized, isDegrees = isDegrees)
             val format = DecimalFormat("#.########")
             format.format(result)
         } catch (e: Exception) {
@@ -232,10 +233,26 @@ fun StandardCalculatorScreen(
 
             // Scientific Toggle Row
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = if (isScientificExpanded) Arrangement.SpaceBetween else Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if (isScientificExpanded) {
+                    TextButton(
+                        onClick = { isDegrees = !isDegrees },
+                        modifier = Modifier.testTag("calculator_deg_rad_toggle")
+                    ) {
+                        Text(
+                            text = if (isDegrees) "DEG" else "RAD",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+
                 TextButton(
                     onClick = { isScientificExpanded = !isScientificExpanded },
                     modifier = Modifier.testTag("calculator_scientific_toggle")
