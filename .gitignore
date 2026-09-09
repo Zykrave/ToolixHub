@@ -12,8 +12,14 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Signing keys & secrets
+Keys/*.jks
+Keys/*.keystore
+Keys/keystore.properties
 *.keystore
 *.jks
 !my-upload-key.jks.example
+
 .DS_Store
 /.idea/deploymentTargetSelector.xml

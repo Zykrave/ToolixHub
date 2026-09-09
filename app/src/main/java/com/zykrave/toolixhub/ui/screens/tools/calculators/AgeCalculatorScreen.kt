@@ -120,14 +120,19 @@ fun AgeCalculatorScreen(
                 .padding(padding)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             ToolixCard {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text("Date of Birth", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Choose your birth date to calculate your exact age.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Text(
                         text = "Selected: ${dateFormat.format(Date(birthDateMillis))}",
                         style = MaterialTheme.typography.bodyMedium,
@@ -145,13 +150,15 @@ fun AgeCalculatorScreen(
             ResultCard(
                 label = "Exact Age",
                 value = "$years years, $months months, $days days",
-                subtitle = "Total Days Lived: $totalDays days (~$totalHours hours)"
+                subtitle = "Total Days Lived: $totalDays days (~$totalHours hours)",
+                accentColor = MaterialTheme.colorScheme.primary
             )
 
             ResultCard(
                 label = "Next Birthday",
                 value = "$daysToBday days remaining",
-                subtitle = "Birthday on ${SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault()).format(nextBdayCal.time)}"
+                subtitle = "Birthday on ${SimpleDateFormat("EEEE, MMMM dd", Locale.getDefault()).format(nextBdayCal.time)}",
+                accentColor = MaterialTheme.colorScheme.secondary
             )
         }
     }

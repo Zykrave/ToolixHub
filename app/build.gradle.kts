@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -11,19 +14,46 @@ android {
     applicationId = "com.zykrave.toolixhub"
     minSdk = 24
     targetSdk = 36
-    versionCode = 1
-    versionName = "1.0"
+    versionCode = 2
+    versionName = "1.1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
   }
 
   signingConfigs {
     create("release") {
-      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
-      storeFile = file(keystorePath)
-      storePassword = System.getenv("STORE_PASSWORD")
-      keyAlias = "upload"
-      keyPassword = System.getenv("KEY_PASSWORD")
+      val keystorePropsFile = rootProject.file("Keys/keystore.properties")
+      val keystoreProps = Properties()
+      if (keystorePropsFile.exists()) {
+        FileInputStream(keystorePropsFile).use { stream ->
+          keystoreProps.load(stream)
+        }
+      }
+
+      val propStoreFile = keystoreProps.getProperty("storeFile")
+      val propStorePassword = keystoreProps.getProperty("storePassword")
+      val propKeyAlias = keystoreProps.getProperty("keyAlias")
+      val propKeyPassword = keystoreProps.getProperty("keyPassword")
+
+      val resolvedStoreFilePath = if (!propStoreFile.isNullOrBlank()) {
+        propStoreFile
+      } else {
+        System.getenv("KEYSTORE_PATH") ?: "Keys/toolixhub-release.jks"
+      }
+
+      storeFile = rootProject.file(resolvedStoreFilePath)
+      storePassword = propStorePassword
+        ?: System.getenv("STORE_PASSWORD")
+        ?: "YOUR_STORE_PASSWORD"
+      keyAlias = propKeyAlias
+        ?: System.getenv("KEY_ALIAS")
+        ?: "toolix-release"
+      val rawKeyPassword = propKeyPassword ?: System.getenv("KEY_PASSWORD")
+      keyPassword = if (rawKeyPassword.isNullOrBlank() || rawKeyPassword == "YOUR_KEY_PASSWORD") {
+        storePassword
+      } else {
+        rawKeyPassword
+      }
     }
     create("debugConfig") {
       storeFile = file("${rootDir}/debug.keystore")

@@ -25,16 +25,23 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.zykrave.toolixhub.BuildConfig
 import com.zykrave.toolixhub.data.AppThemeMode
 import com.zykrave.toolixhub.data.PreferencesManager
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.util.GitHubRelease
+import com.zykrave.toolixhub.util.GitHubReleaseChecker
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -47,6 +54,11 @@ fun SettingsScreen(
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    var isCheckingForUpdate by remember { mutableStateOf(false) }
+    var updateAvailable by remember { mutableStateOf<Boolean?>(null) }
+    var latestRelease by remember { mutableStateOf<GitHubRelease?>(null) }
+    var updateCheckError by remember { mutableStateOf<String?>(null) }
 
     Scaffold(
         topBar = {
@@ -139,7 +151,7 @@ fun SettingsScreen(
                     }
 
                     Text(
-                        text = "ToolixHub is an offline-first multitool. It contains ZERO ads, ZERO trackers, ZERO analytics, and ZERO hidden network calls. Your images, texts, generated keys, and sensor telemetry never leave your physical device.",
+                        text = "ToolixHub is an offline-first multitool. It contains ZERO ads, ZERO trackers, and ZERO analytics. Network access is used only for explicit software updates. Your images, texts, generated keys, and sensor telemetry never leave your physical device.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -148,10 +160,66 @@ fun SettingsScreen(
 
             // About
             ToolixCard {
-                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("ToolixHub Multitool", fontWeight = FontWeight.Bold)
-                    Text("Version 1.0.0 (Offline Suite)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Made by Zykrave", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text("Crafted with Kotlin & Jetpack Compose Material 3", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                    OutlinedButton(
+                        onClick = {
+                            scope.launch {
+                                isCheckingForUpdate = true
+                                updateCheckError = null
+                                updateAvailable = null
+                                latestRelease = null
+                                val result = GitHubReleaseChecker.getLatestRelease()
+                                result.onSuccess { release ->
+                                    latestRelease = release
+                                    updateAvailable = GitHubReleaseChecker.isNewerVersion(
+                                        latestVersion = release.tagName,
+                                        currentVersion = BuildConfig.VERSION_NAME
+                                    )
+                                    isCheckingForUpdate = false
+                                }.onFailure {
+                                    updateCheckError = "Unable to check for updates."
+                                    isCheckingForUpdate = false
+                                }
+                            }
+                        },
+                        enabled = !isCheckingForUpdate,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (isCheckingForUpdate) "Checking..." else "Check for Updates")
+                    }
+
+                    if (updateCheckError != null) {
+                        Text(
+                            text = updateCheckError ?: "",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    } else if (updateAvailable == true && latestRelease != null) {
+                        val release = latestRelease!!
+                        Text(
+                            text = "Update available: ${release.tagName}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (!release.releaseName.isNullOrBlank()) {
+                            Text(
+                                text = release.releaseName,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    } else if (updateAvailable == false) {
+                        Text(
+                            text = "You're up to date.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
