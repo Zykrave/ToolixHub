@@ -15,6 +15,7 @@ val ToolixOnCyanContainer = Color(0xFFB8EFFF)
 val ToolixAmber = Color(0xFFFFB703)
 val ToolixEmerald = Color(0xFF10B981)
 val ToolixRose = Color(0xFFF43F5E)
+val ToolixPurple = Color(0xFF8B5CF6)
 
 // Toolix Light Theme
 val ToolixBackgroundLight = Color(0xFFF8FAFC)
