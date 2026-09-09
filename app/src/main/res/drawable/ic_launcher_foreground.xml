@@ -1,0 +1,58 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Center multitool pocket chassis -->
+    <path
+        android:fillColor="#22272E"
+        android:strokeColor="#38414D"
+        android:strokeWidth="1.5"
+        android:pathData="M40,36 C36,36 33,39 33,43 L33,71 C33,75 36,78 40,78 L48,78 C52,78 55,75 55,71 L55,43 C55,39 52,36 48,36 Z" />
+
+    <!-- Chassis pivot rivets -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M44,42 A3,3 0 1,1 44,42.01" />
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M44,72 A3,3 0 1,1 44,72.01" />
+
+    <!-- Folded tool 1: Sleek knife blade extending top-right -->
+    <path
+        android:fillColor="#E6EDF3"
+        android:pathData="M46,40 C46,40 52,30 68,26 C68,26 62,38 52,44 Z" />
+
+    <!-- Blade sharp edge glow -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="1.2"
+        android:pathData="M48,38 C54,30 64,27 68,26" />
+
+    <!-- Folded tool 2: Ruler/gauge tool extending bottom-right -->
+    <path
+        android:fillColor="#30363D"
+        android:strokeColor="#FFB300"
+        android:strokeWidth="1"
+        android:pathData="M46,68 L70,68 L70,76 L46,76 Z" />
+    <!-- Ruler hash ticks -->
+    <path
+        android:strokeColor="#FFB300"
+        android:strokeWidth="1"
+        android:pathData="M52,68 L52,72 M58,68 L58,74 M64,68 L64,72" />
+
+    <!-- Folded tool 3: Wrench / hex key extending top-left -->
+    <path
+        android:fillColor="#38414D"
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="1"
+        android:pathData="M38,44 L26,44 C24,40 28,34 32,34 L38,40 Z" />
+
+    <!-- Stylized "Z" badge on handle -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M41,53 L47,53 L41,61 L47,61" />
+</vector>
