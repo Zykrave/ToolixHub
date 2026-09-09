@@ -55,8 +55,10 @@ import androidx.compose.ui.unit.sp
 import com.zykrave.toolixhub.model.ToolCategory
 import com.zykrave.toolixhub.model.ToolItem
 import com.zykrave.toolixhub.model.ToolsRegistry
+import com.zykrave.toolixhub.model.accentColor
 import com.zykrave.toolixhub.ui.components.EmptyStateView
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixIconChip
 import com.zykrave.toolixhub.ui.theme.ToolixAmber
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -307,20 +309,11 @@ fun HomeScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.Top
                             ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(42.dp)
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = tool.icon,
-                                        contentDescription = tool.title,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
+                                ToolixIconChip(
+                                    icon = tool.icon,
+                                    contentDescription = tool.title,
+                                    tint = tool.category.accentColor()
+                                )
 
                                 IconButton(
                                     onClick = { onToggleFavorite(tool.id) },

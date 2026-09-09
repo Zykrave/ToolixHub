@@ -127,6 +127,29 @@ fun ToolixCard(
 }
 
 @Composable
+fun ToolixIconChip(
+    icon: ImageVector,
+    contentDescription: String?,
+    tint: Color,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(42.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .background(tint.copy(alpha = 0.12f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = tint,
+            modifier = Modifier.size(24.dp)
+        )
+    }
+}
+
+@Composable
 fun ResultCard(
     label: String,
     value: String,
