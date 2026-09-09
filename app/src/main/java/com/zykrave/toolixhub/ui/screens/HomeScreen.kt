@@ -255,7 +255,7 @@ fun HomeScreen(
                                         Icon(
                                             imageVector = tool.icon,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.primary,
+                                            tint = tool.category.accentColor(),
                                             modifier = Modifier.size(18.dp)
                                         )
                                         Text(
