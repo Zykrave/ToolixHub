@@ -23,3 +23,6 @@ Keys/keystore.properties
 
 .DS_Store
 /.idea/deploymentTargetSelector.xml
+
+# Local release outputs
+app/release/
