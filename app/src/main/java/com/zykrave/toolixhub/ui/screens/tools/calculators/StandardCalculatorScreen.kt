@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,8 +15,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -24,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -43,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.zykrave.toolixhub.ui.components.ToolixCard
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
 import java.text.DecimalFormat
+import kotlin.math.*
 
 @Composable
 fun StandardCalculatorScreen(
@@ -53,12 +59,13 @@ fun StandardCalculatorScreen(
     var expression by remember { mutableStateOf("0") }
     var previousResult by remember { mutableStateOf("") }
     var showHistory by remember { mutableStateOf(false) }
+    var isScientificExpanded by remember { mutableStateOf(false) }
     val history = remember { mutableStateListOf<Pair<String, String>>() }
 
     fun evaluateExpression(expr: String): String {
         return try {
-            val sanitized = expr.replace("×", "*").replace("÷", "/")
-            val result = simpleEval(sanitized)
+            val sanitized = expr.replace("×", "*").replace("÷", "/").replace("π", "pi")
+            val result = simpleEval(sanitized, isDegrees = true)
             val format = DecimalFormat("#.########")
             format.format(result)
         } catch (e: Exception) {
@@ -67,15 +74,15 @@ fun StandardCalculatorScreen(
     }
 
     fun onButtonClick(label: String) {
-        when (label) {
-            "AC" -> {
+        when {
+            label == "AC" -> {
                 expression = "0"
                 previousResult = ""
             }
-            "⌫" -> {
+            label == "⌫" -> {
                 expression = if (expression.length > 1) expression.dropLast(1) else "0"
             }
-            "=" -> {
+            label == "=" -> {
                 val res = evaluateExpression(expression)
                 if (res != "Error") {
                     history.add(0, expression to res)
@@ -83,10 +90,10 @@ fun StandardCalculatorScreen(
                     expression = res
                 }
             }
-            "+/-" -> {
+            label == "+/-" -> {
                 expression = if (expression.startsWith("-")) expression.substring(1) else "-$expression"
             }
-            "%" -> {
+            label == "%" -> {
                 try {
                     val num = expression.toDouble()
                     expression = (num / 100.0).toString()
@@ -94,11 +101,22 @@ fun StandardCalculatorScreen(
                     expression += "%"
                 }
             }
-            "+", "-", "×", "÷" -> {
-                if (expression.isNotEmpty() && (expression.last() == '+' || expression.last() == '-' || expression.last() == '×' || expression.last() == '÷')) {
+            label in listOf("+", "-", "×", "÷", "^") -> {
+                if (expression.isNotEmpty() && expression.last() in listOf('+', '-', '×', '÷', '^')) {
                     expression = expression.dropLast(1) + label
                 } else {
                     expression += label
+                }
+            }
+            label.endsWith("(") || label == "π" || label == "e" -> {
+                val lastChar = expression.lastOrNull()
+                val needsMultiply = lastChar != null && (lastChar.isDigit() || lastChar == ')' || lastChar == '%')
+                val prefix = if (needsMultiply) "×" else ""
+
+                if (expression == "0") {
+                    expression = label
+                } else {
+                    expression += prefix + label
                 }
             }
             else -> {
@@ -210,7 +228,77 @@ fun StandardCalculatorScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Scientific Toggle Row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = { isScientificExpanded = !isScientificExpanded },
+                    modifier = Modifier.testTag("calculator_scientific_toggle")
+                ) {
+                    Text(
+                        text = "Scientific",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = if (isScientificExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                        contentDescription = if (isScientificExpanded) "Collapse Scientific Keypad" else "Expand Scientific Keypad",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            // Scientific Keypad Grid
+            if (isScientificExpanded) {
+                val scientificButtons = listOf(
+                    listOf("sin(", "cos(", "tan(", "^"),
+                    listOf("log(", "ln(", "sqrt(", "("),
+                    listOf("π", "e", ")", "1/(")
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    scientificButtons.forEach { row ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            row.forEach { key ->
+                                Button(
+                                    onClick = { onButtonClick(key) },
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(52.dp)
+                                        .testTag("calc_key_$key"),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                    ),
+                                    contentPadding = PaddingValues(0.dp)
+                                ) {
+                                    Text(
+                                        text = key,
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // Keypad Grid
             val buttons = listOf(
@@ -279,62 +367,113 @@ fun StandardCalculatorScreen(
     }
 }
 
-// Basic recursive descent expression evaluator
-private fun simpleEval(expr: String): Double {
-    val tokens = mutableListOf<String>()
-    var currentNumber = StringBuilder()
+// Recursive descent expression evaluator
+private fun simpleEval(expr: String, isDegrees: Boolean = true): Double {
+    class Parser(private val str: String) {
+        private var pos = -1
+        private var ch = -1
 
-    var i = 0
-    while (i < expr.length) {
-        val c = expr[i]
-        if (c.isDigit() || c == '.') {
-            currentNumber.append(c)
-        } else if (c in listOf('+', '-', '*', '/')) {
-            if (currentNumber.isNotEmpty()) {
-                tokens.add(currentNumber.toString())
-                currentNumber = StringBuilder()
-            } else if (c == '-' && (tokens.isEmpty() || tokens.last() in listOf("+", "-", "*", "/"))) {
-                currentNumber.append('-')
-                i++
-                continue
+        private fun nextChar() {
+            pos++
+            ch = if (pos < str.length) str[pos].code else -1
+        }
+
+        private fun eat(charToEat: Int): Boolean {
+            while (ch == ' '.code || ch == '\t'.code || ch == '\r'.code || ch == '\n'.code) nextChar()
+            if (ch == charToEat) {
+                nextChar()
+                return true
             }
-            tokens.add(c.toString())
+            return false
         }
-        i++
-    }
-    if (currentNumber.isNotEmpty()) {
-        tokens.add(currentNumber.toString())
-    }
 
-    if (tokens.isEmpty()) return 0.0
+        fun parse(): Double {
+            nextChar()
+            val v = parseExpression()
+            while (ch == ' '.code || ch == '\t'.code || ch == '\r'.code || ch == '\n'.code) nextChar()
+            if (pos < str.length) throw IllegalArgumentException("Unexpected character: " + ch.toChar())
+            return v
+        }
 
-    // Multiply and Divide pass
-    val postMultTokens = mutableListOf<String>()
-    var idx = 0
-    while (idx < tokens.size) {
-        val t = tokens[idx]
-        if (t == "*" || t == "/") {
-            val prev = postMultTokens.removeAt(postMultTokens.size - 1).toDouble()
-            val next = tokens.getOrNull(idx + 1)?.toDouble() ?: 1.0
-            val res = if (t == "*") prev * next else if (next != 0.0) prev / next else Double.NaN
-            postMultTokens.add(res.toString())
-            idx += 2
-        } else {
-            postMultTokens.add(t)
-            idx++
+        private fun parseExpression(): Double {
+            var x = parseTerm()
+            while (true) {
+                when {
+                    eat('+'.code) -> x += parseTerm()
+                    eat('-'.code) -> x -= parseTerm()
+                    else -> return x
+                }
+            }
+        }
+
+        private fun parseTerm(): Double {
+            var x = parseUnary()
+            while (true) {
+                when {
+                    eat('*'.code) -> x *= parseUnary()
+                    eat('/'.code) -> x /= parseUnary()
+                    else -> return x
+                }
+            }
+        }
+
+        private fun parseUnary(): Double {
+            if (eat('+'.code)) return parseUnary()
+            if (eat('-'.code)) return -parseUnary()
+            return parseExponent()
+        }
+
+        private fun parseExponent(): Double {
+            var x = parsePrimary()
+            if (eat('^'.code)) {
+                x = x.pow(parseUnary())
+            }
+            return x
+        }
+
+        private fun parsePrimary(): Double {
+            while (ch == ' '.code || ch == '\t'.code || ch == '\r'.code || ch == '\n'.code) nextChar()
+
+            val startPos = pos
+            if (eat('('.code)) {
+                val x = parseExpression()
+                if (!eat(')'.code)) throw IllegalArgumentException("Missing closing parenthesis")
+                return x
+            }
+
+            if ((ch in '0'.code..'9'.code) || ch == '.'.code) {
+                while ((ch in '0'.code..'9'.code) || ch == '.'.code) nextChar()
+                return str.substring(startPos, pos).toDouble()
+            }
+
+            if ((ch in 'a'.code..'z'.code) || (ch in 'A'.code..'Z'.code)) {
+                while ((ch in 'a'.code..'z'.code) || (ch in 'A'.code..'Z'.code) || (ch in '0'.code..'9'.code)) nextChar()
+                val name = str.substring(startPos, pos).lowercase()
+                return when (name) {
+                    "pi" -> PI
+                    "e" -> E
+                    "sin", "cos", "tan", "log", "ln", "sqrt" -> {
+                        if (!eat('('.code)) throw IllegalArgumentException("Expected '(' after function $name")
+                        val arg = parseExpression()
+                        if (!eat(')'.code)) throw IllegalArgumentException("Missing closing parenthesis for $name")
+                        val radArg = if (isDegrees) arg * (PI / 180.0) else arg
+                        when (name) {
+                            "sin" -> sin(radArg)
+                            "cos" -> cos(radArg)
+                            "tan" -> tan(radArg)
+                            "log" -> log10(arg)
+                            "ln" -> ln(arg)
+                            "sqrt" -> sqrt(arg)
+                            else -> error("Unreachable")
+                        }
+                    }
+                    else -> throw IllegalArgumentException("Unknown identifier: $name")
+                }
+            }
+
+            throw IllegalArgumentException("Unexpected character: " + if (ch != -1) ch.toChar() else "EOF")
         }
     }
 
-    // Add and Subtract pass
-    var total = postMultTokens.getOrNull(0)?.toDoubleOrNull() ?: 0.0
-    var opIdx = 1
-    while (opIdx < postMultTokens.size) {
-        val op = postMultTokens[opIdx]
-        val num = postMultTokens.getOrNull(opIdx + 1)?.toDoubleOrNull() ?: 0.0
-        if (op == "+") total += num
-        else if (op == "-") total -= num
-        opIdx += 2
-    }
-
-    return total
+    return Parser(expr).parse()
 }
