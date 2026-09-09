@@ -1,10 +1,15 @@
 package com.zykrave.toolixhub.ui.screens.tools.utility
 
+import android.Manifest
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,9 +44,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.zykrave.toolixhub.ui.components.ResultCard
 import com.zykrave.toolixhub.ui.components.ToolixCard
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
+import com.zykrave.toolixhub.util.MediaSaver
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
@@ -84,6 +91,48 @@ fun QrGeneratorScreen(
     val qrBitmap = remember(rawContent) { generateQrBitmap(rawContent) }
     val context = LocalContext.current
 
+    val storagePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            val currentBitmap = qrBitmap
+            if (currentBitmap != null) {
+                val saved = MediaSaver.saveBitmapToGallery(context, currentBitmap, "ToolixHub_QR.png")
+                val msg = if (saved) "QR code saved to Pictures/ToolixHub" else "Failed to save QR code"
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            Toast.makeText(context, "Storage permission denied", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun saveQrCode() {
+        val currentBitmap = qrBitmap
+        if (currentBitmap == null) {
+            Toast.makeText(context, "Generate a QR code first", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val saved = MediaSaver.saveBitmapToGallery(context, currentBitmap, "ToolixHub_QR.png")
+            val msg = if (saved) "QR code saved to Pictures/ToolixHub" else "Failed to save QR code"
+            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        } else {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasPermission) {
+                val saved = MediaSaver.saveBitmapToGallery(context, currentBitmap, "ToolixHub_QR.png")
+                val msg = if (saved) "QR code saved to Pictures/ToolixHub" else "Failed to save QR code"
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            } else {
+                storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }
+    }
+
     ToolixToolScaffold(
         title = "QR Code Generator",
         onBack = onBack,
@@ -116,6 +165,14 @@ fun QrGeneratorScreen(
                         Text("Enter text to generate QR", color = Color.Gray)
                     }
                 }
+            }
+
+            Button(
+                onClick = { saveQrCode() },
+                enabled = qrBitmap != null,
+                modifier = Modifier.testTag("qr_save_button")
+            ) {
+                Text("Save QR")
             }
 
             ToolixCard {
