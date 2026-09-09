@@ -38,6 +38,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zykrave.toolixhub.ui.theme.ToolixAmber
+import com.zykrave.toolixhub.ui.theme.ToolixPurple
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,13 +122,26 @@ fun ToolixCard(
     borderColor: Color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
     content: @Composable () -> Unit
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        border = BorderStroke(1.dp, borderColor)
+    val shape = RoundedCornerShape(16.dp)
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .shadow(
+                elevation = 8.dp,
+                shape = shape,
+                ambientColor = ToolixPurple.copy(alpha = 0.35f),
+                spotColor = ToolixPurple.copy(alpha = 0.35f),
+                clip = false
+            )
     ) {
-        content()
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = shape,
+            colors = CardDefaults.cardColors(containerColor = backgroundColor),
+            border = BorderStroke(1.dp, borderColor)
+        ) {
+            content()
+        }
     }
 }
 
