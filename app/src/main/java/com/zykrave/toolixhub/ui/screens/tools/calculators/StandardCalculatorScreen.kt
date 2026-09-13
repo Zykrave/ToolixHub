@@ -1,10 +1,8 @@
 package com.zykrave.toolixhub.ui.screens.tools.calculators
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,22 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -37,8 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +34,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixFilterChip
+import com.zykrave.toolixhub.ui.components.ToolixKeypadButton
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
+import com.zykrave.toolixhub.ui.theme.HardShadowColor
+import com.zykrave.toolixhub.ui.theme.ToolixCyan
+import com.zykrave.toolixhub.ui.theme.ToolixEmerald
+import com.zykrave.toolixhub.ui.theme.ToolixRose
 import java.text.DecimalFormat
 import kotlin.math.*
 
@@ -236,40 +230,27 @@ fun StandardCalculatorScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 4.dp),
-                horizontalArrangement = if (isScientificExpanded) Arrangement.SpaceBetween else Arrangement.Center,
+                horizontalArrangement = if (isScientificExpanded) Arrangement.SpaceBetween else Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (isScientificExpanded) {
-                    TextButton(
+                    ToolixFilterChip(
+                        selected = true,
                         onClick = { isDegrees = !isDegrees },
+                        label = if (isDegrees) "DEG" else "RAD",
                         modifier = Modifier.testTag("calculator_deg_rad_toggle")
-                    ) {
-                        Text(
-                            text = if (isDegrees) "DEG" else "RAD",
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    )
                 }
 
-                TextButton(
+                ToolixFilterChip(
+                    selected = isScientificExpanded,
                     onClick = { isScientificExpanded = !isScientificExpanded },
+                    label = if (isScientificExpanded) "Scientific ▲" else "Scientific ▼",
                     modifier = Modifier.testTag("calculator_scientific_toggle")
-                ) {
-                    Text(
-                        text = "Scientific",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        imageVector = if (isScientificExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (isScientificExpanded) "Collapse Scientific Keypad" else "Expand Scientific Keypad",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
+                )
             }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             // Scientific Keypad Grid
             if (isScientificExpanded) {
@@ -291,26 +272,16 @@ fun StandardCalculatorScreen(
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             row.forEach { key ->
-                                Button(
+                                ToolixKeypadButton(
+                                    text = key,
                                     onClick = { onButtonClick(key) },
                                     modifier = Modifier
                                         .weight(1f)
-                                        .height(52.dp)
+                                        .height(48.dp)
                                         .testTag("calc_key_$key"),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                    ),
-                                    contentPadding = PaddingValues(0.dp)
-                                ) {
-                                    Text(
-                                        text = key,
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    )
-                                }
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }
@@ -336,46 +307,35 @@ fun StandardCalculatorScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         row.forEach { key ->
-                            val isOperator = key in listOf("÷", "×", "-", "+", "=")
+                            val isOperator = key in listOf("÷", "×", "-", "+")
+                            val isEquals = key == "="
                             val isSpecial = key in listOf("AC", "+/-", "%", "⌫")
 
                             val containerColor = when {
-                                key == "=" -> MaterialTheme.colorScheme.primary
-                                isOperator -> MaterialTheme.colorScheme.primaryContainer
-                                isSpecial -> MaterialTheme.colorScheme.surfaceVariant
+                                isEquals -> ToolixEmerald
+                                isOperator -> ToolixCyan
+                                isSpecial -> ToolixRose
                                 else -> MaterialTheme.colorScheme.surface
                             }
 
                             val contentColor = when {
-                                key == "=" -> MaterialTheme.colorScheme.onPrimary
-                                isOperator -> MaterialTheme.colorScheme.onPrimaryContainer
+                                isEquals || isOperator || isSpecial -> HardShadowColor
                                 else -> MaterialTheme.colorScheme.onSurface
                             }
 
-                            Button(
+                            val icon = if (key == "⌫") Icons.Default.Backspace else null
+
+                            ToolixKeypadButton(
+                                text = key,
                                 onClick = { onButtonClick(key) },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(64.dp)
+                                    .height(60.dp)
                                     .testTag("calc_key_$key"),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = containerColor,
-                                    contentColor = contentColor
-                                ),
-                                contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp)
-                            ) {
-                                if (key == "⌫") {
-                                    Icon(imageVector = Icons.Default.Backspace, contentDescription = "Backspace")
-                                } else {
-                                    Text(
-                                        text = key,
-                                        style = MaterialTheme.typography.titleLarge.copy(
-                                            fontWeight = if (isOperator || isSpecial) FontWeight.Bold else FontWeight.Medium
-                                        )
-                                    )
-                                }
-                            }
+                                containerColor = containerColor,
+                                contentColor = contentColor,
+                                icon = icon
+                            )
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.zykrave.toolixhub.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,8 +20,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
@@ -28,15 +27,12 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,7 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,7 +55,10 @@ import com.zykrave.toolixhub.model.ToolsRegistry
 import com.zykrave.toolixhub.model.accentColor
 import com.zykrave.toolixhub.ui.components.EmptyStateView
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixFilterChip
 import com.zykrave.toolixhub.ui.components.ToolixIconChip
+import com.zykrave.toolixhub.ui.theme.BrutalBorderColor
+import com.zykrave.toolixhub.ui.theme.BrutalBorderWidth
 import com.zykrave.toolixhub.ui.theme.ToolixAmber
 import com.zykrave.toolixhub.ui.theme.ToolixEmerald
 import com.zykrave.toolixhub.ui.theme.ToolixPurple
@@ -111,18 +110,18 @@ fun HomeScreen(
                                 color = ToolixPurple
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                shape = RoundedCornerShape(4.dp),
-                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                            Box(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                                    .border(BrutalBorderWidth, BrutalBorderColor)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
                             ) {
                                 Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Box(
                                         modifier = Modifier
                                             .size(6.dp)
-                                            .clip(CircleShape)
                                             .background(ToolixEmerald)
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -182,10 +181,12 @@ fun HomeScreen(
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RectangleShape,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = BrutalBorderColor
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -200,41 +201,39 @@ fun HomeScreen(
                     contentPadding = PaddingValues(vertical = 4.dp)
                 ) {
                     item {
-                        FilterChip(
+                        ToolixFilterChip(
                             selected = selectedCategory == null && !filterFavoritesOnly,
                             onClick = {
                                 selectedCategory = null
                                 filterFavoritesOnly = false
                             },
-                            label = { Text("All Tools (${allTools.size})") }
+                            label = "All Tools (${allTools.size})"
                         )
                     }
 
                     item {
-                        FilterChip(
+                        ToolixFilterChip(
                             selected = filterFavoritesOnly,
                             onClick = {
                                 filterFavoritesOnly = !filterFavoritesOnly
                                 if (filterFavoritesOnly) selectedCategory = null
                             },
-                            label = { Text("★ Favorites (${favorites.size})") },
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = ToolixAmber.copy(alpha = 0.2f),
-                                selectedLabelColor = ToolixAmber
-                            )
+                            label = "★ Favorites (${favorites.size})",
+                            selectedAccentColor = ToolixAmber
                         )
                     }
 
                     val categories = ToolCategory.entries
                     items(categories.size) { index ->
                         val cat = categories[index]
-                        FilterChip(
+                        ToolixFilterChip(
                             selected = selectedCategory == cat && !filterFavoritesOnly,
                             onClick = {
                                 selectedCategory = if (selectedCategory == cat) null else cat
                                 filterFavoritesOnly = false
                             },
-                            label = { Text(cat.title) }
+                            label = cat.title,
+                            selectedAccentColor = cat.accentColor()
                         )
                     }
                 }
@@ -254,10 +253,10 @@ fun HomeScreen(
                         ) {
                             items(recentTools.size) { index ->
                                 val tool = recentTools[index]
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                Box(
                                     modifier = Modifier
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .border(BrutalBorderWidth, BrutalBorderColor)
                                         .clickable { onNavigateToTool(tool) }
                                         .testTag("recent_tool_${tool.id}")
                                 ) {

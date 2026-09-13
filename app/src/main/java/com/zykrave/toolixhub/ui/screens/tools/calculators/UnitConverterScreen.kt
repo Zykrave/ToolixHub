@@ -3,26 +3,18 @@ package com.zykrave.toolixhub.ui.screens.tools.calculators
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,13 +22,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.zykrave.toolixhub.ui.components.ResultCard
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixDropdown
+import com.zykrave.toolixhub.ui.components.ToolixTabRow
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
 import java.text.DecimalFormat
 
@@ -51,7 +44,6 @@ enum class UnitType(val displayName: String) {
 
 data class UnitDef(val name: String, val symbol: String, val toBase: (Double) -> Double, val fromBase: (Double) -> Double)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UnitConverterScreen(
     onBack: () -> Unit,
@@ -117,9 +109,6 @@ fun UnitConverterScreen(
     var toIndex by remember(currentType) { mutableIntStateOf(if (currentUnits.size > 1) 1 else 0) }
     var inputValue by remember { mutableStateOf("1") }
 
-    var fromExpanded by remember { mutableStateOf(false) }
-    var toExpanded by remember { mutableStateOf(false) }
-
     val fromUnit = currentUnits.getOrElse(fromIndex) { currentUnits[0] }
     val toUnit = currentUnits.getOrElse(toIndex) { currentUnits[0] }
 
@@ -127,6 +116,8 @@ fun UnitConverterScreen(
     val baseVal = fromUnit.toBase(inputNum)
     val convertedVal = toUnit.fromBase(baseVal)
     val df = DecimalFormat("#,##0.######")
+
+    val unitOptions = currentUnits.map { "${it.name} (${it.symbol})" }
 
     ToolixToolScaffold(
         title = "Unit Converter",
@@ -140,23 +131,17 @@ fun UnitConverterScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            ScrollableTabRow(
+            ToolixTabRow(
+                tabs = categories.map { it.displayName },
                 selectedTabIndex = selectedCategoryIndex,
-                containerColor = MaterialTheme.colorScheme.surface,
-                edgePadding = 16.dp
-            ) {
-                categories.forEachIndexed { idx, cat ->
-                    Tab(
-                        selected = selectedCategoryIndex == idx,
-                        onClick = {
-                            selectedCategoryIndex = idx
-                            fromIndex = 0
-                            toIndex = 1
-                        },
-                        text = { Text(cat.displayName) }
-                    )
-                }
-            }
+                onTabSelected = { idx ->
+                    selectedCategoryIndex = idx
+                    fromIndex = 0
+                    toIndex = 1
+                },
+                scrollable = true,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -176,33 +161,16 @@ fun UnitConverterScreen(
                         )
 
                         // From dropdown
-                        ExposedDropdownMenuBox(
-                            expanded = fromExpanded,
-                            onExpandedChange = { fromExpanded = !fromExpanded }
-                        ) {
-                            OutlinedTextField(
-                                value = "${fromUnit.name} (${fromUnit.symbol})",
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("From") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fromExpanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = fromExpanded,
-                                onDismissRequest = { fromExpanded = false }
-                            ) {
-                                currentUnits.forEachIndexed { i, unit ->
-                                    DropdownMenuItem(
-                                        text = { Text("${unit.name} (${unit.symbol})") },
-                                        onClick = {
-                                            fromIndex = i
-                                            fromExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        ToolixDropdown(
+                            options = unitOptions,
+                            selectedOption = "${fromUnit.name} (${fromUnit.symbol})",
+                            onOptionSelected = { selectedStr ->
+                                val idx = currentUnits.indexOfFirst { "${it.name} (${it.symbol})" == selectedStr }
+                                if (idx >= 0) fromIndex = idx
+                            },
+                            label = "From",
+                            modifier = Modifier.fillMaxWidth()
+                        )
 
                         // Swap Button
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -218,33 +186,16 @@ fun UnitConverterScreen(
                         }
 
                         // To dropdown
-                        ExposedDropdownMenuBox(
-                            expanded = toExpanded,
-                            onExpandedChange = { toExpanded = !toExpanded }
-                        ) {
-                            OutlinedTextField(
-                                value = "${toUnit.name} (${toUnit.symbol})",
-                                onValueChange = {},
-                                readOnly = true,
-                                label = { Text("To") },
-                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toExpanded) },
-                                modifier = Modifier.menuAnchor().fillMaxWidth()
-                            )
-                            ExposedDropdownMenu(
-                                expanded = toExpanded,
-                                onDismissRequest = { toExpanded = false }
-                            ) {
-                                currentUnits.forEachIndexed { i, unit ->
-                                    DropdownMenuItem(
-                                        text = { Text("${unit.name} (${unit.symbol})") },
-                                        onClick = {
-                                            toIndex = i
-                                            toExpanded = false
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        ToolixDropdown(
+                            options = unitOptions,
+                            selectedOption = "${toUnit.name} (${toUnit.symbol})",
+                            onOptionSelected = { selectedStr ->
+                                val idx = currentUnits.indexOfFirst { "${it.name} (${it.symbol})" == selectedStr }
+                                if (idx >= 0) toIndex = idx
+                            },
+                            label = "To",
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
 

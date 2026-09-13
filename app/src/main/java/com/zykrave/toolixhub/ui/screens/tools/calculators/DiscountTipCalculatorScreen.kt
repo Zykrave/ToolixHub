@@ -11,12 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +27,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.zykrave.toolixhub.ui.components.ResultCard
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixFilterChip
+import com.zykrave.toolixhub.ui.components.ToolixSlider
+import com.zykrave.toolixhub.ui.components.ToolixTabRow
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
 import java.text.DecimalFormat
 
@@ -55,19 +54,13 @@ fun DiscountTipCalculatorScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            TabRow(
+            ToolixTabRow(
+                tabs = tabs,
                 selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title) },
-                        modifier = Modifier.testTag("discount_tab_$index")
-                    )
-                }
-            }
+                onTabSelected = { selectedTab = it },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                scrollable = false
+            )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 if (selectedTab == 0) {
@@ -164,17 +157,17 @@ private fun TipSplitView() {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     listOf(10, 15, 18, 20, 25).forEach { pct ->
-                        FilterChip(
+                        ToolixFilterChip(
                             selected = tipPercent == pct,
                             onClick = { tipPercent = pct },
-                            label = { Text("$pct%") }
+                            label = "$pct%"
                         )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
                 Text("Split Between: $peopleCount people", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Slider(
+                ToolixSlider(
                     value = peopleCount.toFloat(),
                     onValueChange = { peopleCount = it.toInt() },
                     valueRange = 1f..20f,

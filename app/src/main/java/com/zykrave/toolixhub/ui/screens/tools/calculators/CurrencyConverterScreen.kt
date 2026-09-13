@@ -11,10 +11,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,12 +28,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.zykrave.toolixhub.ui.components.ResultCard
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixDropdown
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
 import java.text.DecimalFormat
 
 data class CurrencyDef(val code: String, val name: String, val symbol: String, val defaultRateToUsd: Double)
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyConverterScreen(
     onBack: () -> Unit,
@@ -70,13 +66,12 @@ fun CurrencyConverterScreen(
         mutableStateOf(DecimalFormat("#.####").format(defaultRatio))
     }
 
-    var fromExpanded by remember { mutableStateOf(false) }
-    var toExpanded by remember { mutableStateOf(false) }
-
     val amount = amountInput.toDoubleOrNull() ?: 0.0
     val rate = manualRateInput.toDoubleOrNull() ?: 1.0
     val convertedAmount = amount * rate
     val df = DecimalFormat("#,##0.00")
+
+    val currencyOptions = currencies.map { "${it.code} - ${it.name} (${it.symbol})" }
 
     ToolixToolScaffold(
         title = "Currency Converter",
@@ -112,33 +107,16 @@ fun CurrencyConverterScreen(
                     )
 
                     // From Currency Dropdown
-                    ExposedDropdownMenuBox(
-                        expanded = fromExpanded,
-                        onExpandedChange = { fromExpanded = !fromExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = "${fromCurrency.code} - ${fromCurrency.name} (${fromCurrency.symbol})",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("From Currency") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = fromExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = fromExpanded,
-                            onDismissRequest = { fromExpanded = false }
-                        ) {
-                            currencies.forEach { curr ->
-                                DropdownMenuItem(
-                                    text = { Text("${curr.code} - ${curr.name} (${curr.symbol})") },
-                                    onClick = {
-                                        fromCurrency = curr
-                                        fromExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    ToolixDropdown(
+                        options = currencyOptions,
+                        selectedOption = "${fromCurrency.code} - ${fromCurrency.name} (${fromCurrency.symbol})",
+                        onOptionSelected = { selectedStr ->
+                            val found = currencies.find { "${it.code} - ${it.name} (${it.symbol})" == selectedStr }
+                            if (found != null) fromCurrency = found
+                        },
+                        label = "From Currency",
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     // Swap Currencies
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
@@ -154,33 +132,16 @@ fun CurrencyConverterScreen(
                     }
 
                     // To Currency Dropdown
-                    ExposedDropdownMenuBox(
-                        expanded = toExpanded,
-                        onExpandedChange = { toExpanded = !toExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = "${toCurrency.code} - ${toCurrency.name} (${toCurrency.symbol})",
-                            onValueChange = {},
-                            readOnly = true,
-                            label = { Text("To Currency") },
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = toExpanded) },
-                            modifier = Modifier.menuAnchor().fillMaxWidth()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = toExpanded,
-                            onDismissRequest = { toExpanded = false }
-                        ) {
-                            currencies.forEach { curr ->
-                                DropdownMenuItem(
-                                    text = { Text("${curr.code} - ${curr.name} (${curr.symbol})") },
-                                    onClick = {
-                                        toCurrency = curr
-                                        toExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
+                    ToolixDropdown(
+                        options = currencyOptions,
+                        selectedOption = "${toCurrency.code} - ${toCurrency.name} (${toCurrency.symbol})",
+                        onOptionSelected = { selectedStr ->
+                            val found = currencies.find { "${it.code} - ${it.name} (${it.symbol})" == selectedStr }
+                            if (found != null) toCurrency = found
+                        },
+                        label = "To Currency",
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     // Manual exchange rate field
                     OutlinedTextField(

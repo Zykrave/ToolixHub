@@ -2,19 +2,14 @@ package com.zykrave.toolixhub.ui.screens.tools.calculators
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,8 +24,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.zykrave.toolixhub.ui.components.ResultCard
 import com.zykrave.toolixhub.ui.components.ToolixCard
+import com.zykrave.toolixhub.ui.components.ToolixTabRow
 import com.zykrave.toolixhub.ui.components.ToolixToolScaffold
 import java.text.DecimalFormat
+import kotlin.math.abs
 
 @Composable
 fun PercentageCalculatorScreen(
@@ -53,19 +50,12 @@ fun PercentageCalculatorScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
         ) {
-            TabRow(
+            ToolixTabRow(
+                tabs = tabs,
                 selectedTabIndex = selectedTab,
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTab == index,
-                        onClick = { selectedTab = index },
-                        text = { Text(title, maxLines = 1) },
-                        modifier = Modifier.testTag("percentage_tab_$index")
-                    )
-                }
-            }
+                onTabSelected = { selectedTab = it },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
 
             Column(modifier = Modifier.padding(16.dp)) {
                 when (selectedTab) {
@@ -194,7 +184,7 @@ private fun ModeChange() {
         ResultCard(
             label = "Percentage Change",
             value = "$prefix${df.format(percentChange)}%",
-            subtitle = "$statusText ${df.format(kotlin.math.abs(diff))} (from ${df.format(initial)} to ${df.format(finalVal)})"
+            subtitle = "$statusText ${df.format(abs(diff))} (from ${df.format(initial)} to ${df.format(finalVal)})"
         )
     }
 }
