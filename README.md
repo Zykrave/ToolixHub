@@ -13,7 +13,7 @@ Made by **Zykrave**
 
 <br />
 
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](https://github.com/Zykrave/ToolixHub/releases)
+[![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](https://github.com/Zykrave/ToolixHub/releases)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-purple.svg)](https://kotlinlang.org)
 [![Android SDK](https://img.shields.io/badge/Android%20SDK-24%2B-green.svg)](https://developer.android.com)
