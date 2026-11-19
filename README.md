@@ -11,16 +11,6 @@ An offline-first Android multitool application featuring a comprehensive collect
 ### **ToolixHub**
 Made by **Zykrave**
 
-<div align="center">
-  <a href="https://rookieenough.github.io/Orion-Data/app/?id=toolixhub">
-    <img src="https://raw.githubusercontent.com/RookieEnough/Orion-Store/main/icon.png" width="72" height="72" alt="Orion Store logo" />
-    <br />
-    <strong>GET IT ON ORION STORE</strong>
-    <br />
-    <sub>Download ToolixHub</sub>
-  </a>
-</div>
-
 <br />
 
 [![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](https://github.com/Zykrave/ToolixHub/releases)
@@ -29,6 +19,18 @@ Made by **Zykrave**
 [![Android SDK](https://img.shields.io/badge/Android%20SDK-24%2B-green.svg)](https://developer.android.com)
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4.svg)](https://developer.android.com/jetpack/compose)
 
+</div>
+
+---
+
+## 📥 Download
+
+<div align="center">
+  <a href="https://rookieenough.github.io/Orion-Data/app/?id=toolixhub">
+    <img src="https://img.shields.io/badge/GET_IT_ON-Orion_Store-5267D8?style=for-the-badge" alt="Get ToolixHub on Orion Store" />
+  </a>
+  <br />
+  <sub>Download ToolixHub from Orion Store</sub>
 </div>
 
 ---
