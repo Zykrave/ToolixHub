@@ -146,6 +146,7 @@ Official releases for ToolixHub are published on GitHub. You can find the main r
 
 - 🔗 **Repository**: [https://github.com/Zykrave/ToolixHub](https://github.com/Zykrave/ToolixHub)
 - 📦 **Official Releases**: [https://github.com/Zykrave/ToolixHub/releases](https://github.com/Zykrave/ToolixHub/releases)
+- 🏪 **Orion Store**: [Download ToolixHub on Orion Store](https://rookieenough.github.io/Orion-Data/app/?id=toolixhub)
 
 **How Software Updates Work:**
 - ToolixHub includes an optional manual update checker located under **Settings → About**.
