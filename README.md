@@ -11,6 +11,16 @@ An offline-first Android multitool application featuring a comprehensive collect
 ### **ToolixHub**
 Made by **Zykrave**
 
+<div align="center">
+  <a href="https://rookieenough.github.io/Orion-Data/app/?id=toolixhub">
+    <img src="https://raw.githubusercontent.com/RookieEnough/Orion-Store/main/icon.png" width="72" height="72" alt="Orion Store logo" />
+    <br />
+    <strong>GET IT ON ORION STORE</strong>
+    <br />
+    <sub>Download ToolixHub</sub>
+  </a>
+</div>
+
 <br />
 
 [![Version](https://img.shields.io/badge/Version-1.2.0-blue.svg)](https://github.com/Zykrave/ToolixHub/releases)
@@ -146,7 +156,6 @@ Official releases for ToolixHub are published on GitHub. You can find the main r
 
 - 🔗 **Repository**: [https://github.com/Zykrave/ToolixHub](https://github.com/Zykrave/ToolixHub)
 - 📦 **Official Releases**: [https://github.com/Zykrave/ToolixHub/releases](https://github.com/Zykrave/ToolixHub/releases)
-- 🏪 **Orion Store**: [Download ToolixHub on Orion Store](https://rookieenough.github.io/Orion-Data/app/?id=toolixhub)
 
 **How Software Updates Work:**
 - ToolixHub includes an optional manual update checker located under **Settings → About**.
