@@ -26,3 +26,4 @@ Keys/keystore.properties
 
 # Local release outputs
 app/release/
+/.idea/
