@@ -29,8 +29,12 @@ Made by **Zykrave**
   <a href="https://rookieenough.github.io/Orion-Data/app/?id=toolixhub">
     <img src="https://img.shields.io/badge/GET_IT_ON-Orion_Store-5267D8?style=for-the-badge" alt="Get ToolixHub on Orion Store" />
   </a>
+  &nbsp;&nbsp;
+  <a href="https://github.com/Zykrave/ToolixHub/releases">
+    <img src="https://img.shields.io/badge/DOWNLOAD-GitHub_Releases-181717?style=for-the-badge&logo=github" alt="Download ToolixHub from GitHub Releases" />
+  </a>
   <br />
-  <sub>Download ToolixHub from Orion Store</sub>
+  <sub>Choose Orion Store or download the APK from GitHub Releases</sub>
 </div>
 
 ---
